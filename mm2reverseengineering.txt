@@ -1,0 +1,306 @@
+Best Time Icon: romfs/Layout/Cmn_EventClearTime_00.Nin_NX_NVN/Cmn_EventClearTime_00/timg/__Combined/NCL_IconS32_BestTime
+Timer1: 223E98D5F48
+Timer2: 1A212CE2D88
+Timer3: 223E98E2D88
+
+Play_ClearInfo_00 has timer stuff
+Cmn_EventClearTime has ninji timer stuff
+Cmn_Fade has the fade effect
+Lcl_CourseInfoWindow has info displayed online
+
+Network request params start at 0x20 and goes to end (nevermind lol, sometimes different), method ID starts at 0x15 and is uint32
+
+710108a9b0: Lots of math, could be useful
+FUN_71002830b0: Formatting function, like printf
+FUN_71018ead80: Biggest function yet
+7101bba9c0: Scene fade?
+7101bf5a14: Course main sequence?
+
+FUN_7100dbe020: First 2 arguments are multiplied by 16
+71029fcf40: Start of what appears to be useful variable names
+71015e1200: Function that assigns a lot of the states used during playing a course
+FUN_71008b8f00: Assigns a state, arguments are an unknown class member variable, index of state starting at 0 and a char* pointing to the name of the state, eg "cState_Fall"
+FUN_7101585ce0: Assigns class containing current powerup state and other stuff
+
+target extended-remote 10.0.0.42:22225
+info os processes
+monitor get info, first number next to Slope.nss is main_start
+FUN_7100e77c60: Preloads levels in course bot, including thumbnails
+FUN_71012c8990: Victory function, plays when level completed
+FUN_71014b5f10: Called only when a level is downloaded, and does not occur when opening the level after exiting
+FUN_7101508150: Called repeatedly (every frame) on downloading or loading (something is happening, not sure)
+FUN_710169c5c0: Called right at the end of a level for 5 frames in a row
+FUN_71016eded0: Called once a frame for multiple frames before level start, for during the fade in but before displaying the course name. Appears to only occur in coursebot
+FUN_71016f2cd0: Coursebot states, contains 376768
+FUN_710173a970: Called at beginning of level on online levels, one frame immediantly after downloading, happens even if exit and enter, but not start over
+FUN_710175b020: Contains many states, could refer to versus but also has background stuff
+FUN_710176c8a0: Called for many frames before online course, possibly downloading
+FUN_71017927f0: Called for a single frame for both online and coursebot
+FUN_71017bb150: Called on refresh levels in coursebot, for 2 frames
+FUN_71017bb920: Called on refresh levels in coursebot, takes longer
+FUN_71017c2720: Contains a lot of state strings, as well as formatting, and includes 376768
+FUN_7101791200: Calls FUN_71017927f0 and has Network and CourseRobot strings embedded
+FUN_71016a8db0: Calls FUN_7101791200 with 32 and a pointer, intro course, called every time you die in the intro too but passes NULL instead of pointer to 3 to FUN_7101791200 and does so many times, called every frame with a class instance
+FUN_7101790f80: Called at the end of FUN_7101791200 with parameter, references UISceneFadeSeq
+71016a8e1c: Check x0 on this line, may determine what level to display during intro
+71016a8e7c: Comparison thing
+FUN_7100e3b9f0: Used for every level loaded as well, even between start overs
+- Can either change string of title screen to whatever we want (needs szs), or set param_2 to index of custom level 
+7100e3c144: Loads formatting string for intro level, simply replace with own
+FUN_7101b39b00: Could assign ninji counter
+FUN_710180f440: Could also assign ninji counter
+7101bd4ab0: Believe this function sets up the scene
+71007663a4: Doing comparisons for scene setup
+7101b4da78: Calls the event timer setup
+7101bd4ca0: Where timer function is called
+7101b4da40 is always called, but param_1 determines what function it calls at 7101b4da60
+
+71007662c0 called from 7100766ca8 for event courses
+71007662c0 called from 710186d7e4 for regular courses
+
+0x710186d7e8, 0x76f94bd868, 0x32ef333f20
+0x7100766cac, 0x76f94bd868, 0x32ef39c058
+0x7100766cac, 0x76f94bd868, 0x32ef39cca0
+0x7100766cac, 0x76f94bd868, 0x32ef39d558
+0x7100766cac, 0x76f94bd868, 0x32ef39e3a0
+0x7100766cac, 0x76f94bd868, 0x32ef39f350
+0x7100766cac, 0x76f94bd868, 0x32ef3a0460
+
+0x10fd0717e8 0x15cadc5868 0x4a3d733f20
+0x10fbf6acac 0x15cadc5868 0x4a3d79c058
+0x10fbf6acac 0x15cadc5868 0x4a3d79cca0
+0x10fbf6acac 0x15cadc5868 0x4a3d79d558
+0x10fbf6acac 0x15cadc5868 0x4a3d79e3a0
+
+0x10fcfe7ad0 0x15cadc2958 0x4a6abd0758
+0x10fcfe7ad0 0x15cadc28d8 0x4a6abdb338
+0x10fbf6acac 0x15cadc28d8 0x4a6abe0e78
+0x10fcfe7ad0 0x15cadc2898 0x4a6abe7418
+
+# For event timer
+# Open (runs twice)
+ 0x15cadc2828 0x4a6c588150, pointer to previous
+ 0x10fe1e3d08 0x10fe171b98, adapt previous to main
+ 0x71029dfd08 0x710296db98
+# Close (runs twice)
+ 0x15cadc5668 0x4a649dfb48 
+ 0x10fe1cff60 0x10fe171b98
+ 0x71029cbf60 0x710296db98
+
+ASM for above:
+sub sp, sp, #10
+adrp x0, 0x71029dfd08
+add x0, x0, #0xd08
+str x0, [sp, #0]
+add x0, sp, #0
+adrp x1, 0x710296db98
+add x1, x1, #0xb98
+str x1, [sp, #8]
+add x1, sp, #8
+bl FUN_71007662c0
+add sp, sp, #10
+
+FUN_7100e3b9f0 for title screen level 5:
+x0             0x5c5cee53e8        396696114152
+x1             0xb6                182
+x2             0x1                 1
+x3             0x29ea47d070        180024234096
+x4             0x5c9a1b63a0        397722477472
+x5             0x20ec              8428
+x6             0x0                 0
+x7             0x0                 0
+x8             0x5cd2c1f200        398672916992
+x9             0x29ecc6b000        180066103296
+x10            0x2                 2
+x11            0x5cd2c1f3d0        398672917456
+x12            0x0                 0
+x13            0x32535778          844322680
+x14            0x30                48
+x15            0x5cd2c1f120        398672916768
+x16            0x29edc829f8        180082977272
+x17            0x29ed3a6870        180073687152
+x18            0x0                 0
+x19            0x2                 2
+x20            0x5cd2c1f190        398672916880
+x21            0x29ece5b000        180068134912
+x22            0x5cd0a568c0        398637492416
+x23            0x29ecc3c000        180065910784
+x24            0x5cd1545cf0        398648958192
+x25            0x5cd0a56bf8        398637493240
+x26            0x29eca562b0        180063920816
+x27            0x5cd2c1f1c0        398672916928
+x28            0x5cd15452f0        398648955632
+x29            0x547dd5bd50        362888412496
+x30            0x29eb8af00c        180045410316
+sp             0x547dd58dc0        0x547dd58dc0
+pc             0x29eb03f9f0        0x29eb03f9f0
+cpsr           0x80000000          [ EL=0 N ]
+fpsr           0x14                20
+fpcr           0x0                 0
+
+FUN_7100e3b9f0 for coursebot bombs away, preload
+x0             0x5c5cee53e8        396696114152
+x1             0x1                 1
+x2             0x0                 0
+x3             0x0                 0
+x4             0x1                 1
+x5             0x0                 0
+x6             0x0                 0
+x7             0x0                 0
+x8             0x0                 0
+x9             0x0                 0
+x10            0x0                 0
+x11            0x0                 0
+x12            0x6b                107
+x13            0x6b                107
+x14            0x6d                109
+x15            0x1                 1
+x16            0x29edc829f8        180082977272
+x17            0x29ed3a6870        180073687152
+x18            0x0                 0
+x19            0x5cd0a568c0        398637492416
+x20            0x29ecc6b000        180066103296
+x21            0x5cd1a54190        398654259600
+x22            0x0                 0
+x23            0x29ecc3c000        180065910784
+x24            0x29ece5c000        180068139008
+x25            0x5c5cee5620        396696114720
+x26            0x29ecdf0000        180067696640
+x27            0x5cd0c3efb0        398639493040
+x28            0x5cd0c3e890        398639491216
+x29            0x547dd5bd50        362888412496
+x30            0x29eb8e37fc        180045625340
+sp             0x547dd5bcc0        0x547dd5bcc0
+pc             0x29eb03f9f0        0x29eb03f9f0
+cpsr           0x60000000          [ EL=0 C Z ]
+fpsr           0x14                20
+fpcr           0x0                 0
+
+FUN_7100e3b9f0 for coursebot bombs away, after load, param_2 is index of your own level
+x0             0x5c5cee53e8        396696114152
+x1             0x1                 1
+x2             0x0                 0
+x3             0x29ea47d070        180024234096
+x4             0x5c9a1b63a0        397722477472
+x5             0x20ec              8428
+x6             0x0                 0
+x7             0x0                 0
+x8             0x5cd2c1f200        398672916992
+x9             0x29ecc6b000        180066103296
+x10            0xd                 13
+x11            0x5cd2c1f3d0        398672917456
+x12            0x0                 0
+x13            0x32535778          844322680
+x14            0x30                48
+x15            0x5cd2c1f120        398672916768
+x16            0x29edc829f8        180082977272
+x17            0x29ed3a6870        180073687152
+x18            0x0                 0
+x19            0x2                 2
+x20            0x5cd2c1f190        398672916880
+x21            0x29ece5b000        180068134912
+x22            0x5cd0a568c0        398637492416
+x23            0x29ecc3c000        180065910784
+x24            0x5cd1545cf0        398648958192
+x25            0x5cd0a56bf8        398637493240
+x26            0x29eca562b0        180063920816
+x27            0x5cd2c1f1c0        398672916928
+x28            0x5cd15452f0        398648955632
+x29            0x547dd5bd50        362888412496
+x30            0x29eb8af00c        180045410316
+sp             0x547dd58dc0        0x547dd58dc0
+pc             0x29eb03f9f0        0x29eb03f9f0
+cpsr           0x80000000          [ EL=0 N ]
+fpsr           0x14                20
+fpcr           0x0                 0
+
+FUN_7100e3b9f0 for online level
+x0             0x5c5cee53e8        396696114152
+x1             0xb4                180
+x2             0x0                 0
+x3             0x0                 0
+x4             0x1                 1
+x5             0x0                 0
+x6             0x0                 0
+x7             0x80                128
+x8             0x0                 0
+x9             0x0                 0
+x10            0x0                 0
+x11            0x0                 0
+x12            0x6b                107
+x13            0x6b                107
+x14            0x6d                109
+x15            0x1                 1
+x16            0x29edc829f8        180082977272
+x17            0x29ed3a6870        180073687152
+x18            0xffff              65535
+x19            0x5cd0a568c0        398637492416
+x20            0x29ecc6b000        180066103296
+x21            0x5cd1a54190        398654259600
+x22            0x0                 0
+x23            0x29ecc3c000        180065910784
+x24            0x29ece5c000        180068139008
+x25            0x5c5cee5620        396696114720
+x26            0x29ecdf0000        180067696640
+x27            0x5cd0c3efb0        398639493040
+x28            0x5cd0c3e890        398639491216
+x29            0x547dd5bd50        362888412496
+x30            0x29eb8e37fc        180045625340
+sp             0x547dd5bcc0        0x547dd5bcc0
+pc             0x29eb03f9f0        0x29eb03f9f0
+cpsr           0x60000000          [ EL=0 C Z ]
+fpsr           0x16                22
+fpcr           0x0                 0
+
+Registers at 7101b39dd4
+x0             0x4692be0be8        303109639144
+x1             0x54721a09d8        362691561944
+x2             0x54721a0768        362691561320
+x3             0xd9287d070         58292949104
+x4             0xd92cb2bd0         58297363408
+x5             0x0                 0
+x6             0xd92ca28e0         58297297120
+x7             0x0                 0
+x8             0x4692be0bc8        303109639112
+x9             0x0                 0
+x10            0x4692af9700        303108691712
+x11            0xbf73b70           200751984
+x12            0x435f4c2f          1130318895
+x13            0x3030              12336
+x14            0x4692bbc770        303109490544
+x15            0xeadc3583          3940300163
+x16            0xd94fffa60         58334378592
+
+Failed assembly:
+018667e4 00588052 // mov x0, #0x2c0
+018667e8 e1031d32 // mov x1, #0x8
+018667ec 35f0a797 // bl FUN_71002628c0 or bl #0xFE9FC0D4
+018667f0 617f0090 // adrp x1, #0xFEC000, setting x1 to 0x71028522b0, sourced from 7101b39dd4
+018667f4 21c00a91 // add x1, x1, #0x2B0
+018667f8 22000091 // add x2, x1, #0
+018667fc 41f8bb97 // bl FUN_7100764900 or bl #0xFEEFE104
+01866800 c0035fd6 // return;
+
+Layout functions with the right parameters (that are called when levels are opened):
+* FUN_7101b37a80, called from 0x7101B52408
+* FUN_7101923d20
+* FUN_7101887500
+* FUN_7101886fd0
+* FUN_7101886a90 (appears to trigger on coursebot menu)
+* FUN_7101886560 (appears to trigger on coursebot menu)
+* FUN_7101886030 (appears to trigger on coursebot menu)
+* FUN_7101885b00 (appears to trigger on coursebot menu)
+* FUN_71018855d0 (appears to trigger on coursebot menu)
+* FUN_7101884fb0 (appears to trigger on coursebot menu)
+
+FUN_71017927f0 is called at the beginning of the intro level
+Paremeters when called at the beginning are 32, 182 and pointer 0xac5da9918
+FUN_7101791200
+parameters when called at the beginning are 32 and pointer 0x6672a3da30, usually points to uint32 3
+
+FUN_71016a8db0 called with 0x6771a568c0
+
+// bl #0xFFFE76F8 or bl FUN_7101b39b00
+// 01b52408 be9dff97
+
+"C:\msys64\mingw64\bin\gdb-multiarch" is the GDB (probably)

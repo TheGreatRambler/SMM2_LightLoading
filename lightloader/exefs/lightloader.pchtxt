@@ -1,0 +1,8 @@
+@nsobid-EDB8FEEDE2BFA3FFD1ADF65A4424361A
+@flag offset_shift 0x100
+
+// Set intro screen to a fixed level
+@enabled
+022d481d "Course/quest_%03d.szs"
+022d4832 00
+018667e0 c0035fd6
